@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd 
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="e1fafb90-148c-41f5-8d08-69831678977a" >
+		<http:listener-connection host="localhost" port="8081" />
+	</http:listener-config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="9fb25596-8686-410b-8e81-059f34c48418" basePath="/api" >
+		<http:request-connection host="localhost" port="1532" />
+	</http:request-config>
+	<configuration doc:name="Configuration" doc:id="69b2bb58-7bcf-42f1-95eb-8cde227fcb97" defaultErrorHandler-ref="globalError_Handler" />
+	<error-handler name="globalError_Handler" doc:id="dbf93eec-851c-4b2b-b24b-bf992890edf3" >
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="Not Found" doc:id="55b84b0f-1d56-412e-82e1-d67d063339b4" type="HTTP:NOT_FOUND">
+			<ee:transform doc:name="Transform Message" doc:id="b222331c-9d5c-410b-8aaa-9464e5514d71">
+				<ee:message>
+					<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"status" : "Failed",
+	"response" : error.errorMessage.payload
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+		</on-error-propagate>
+	</error-handler>
+
+</mule>
