@@ -15,18 +15,61 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
 	</http:request-config>
 	<configuration doc:name="Configuration" doc:id="69b2bb58-7bcf-42f1-95eb-8cde227fcb97" defaultErrorHandler-ref="globalError_Handler" />
 	<error-handler name="globalError_Handler" doc:id="dbf93eec-851c-4b2b-b24b-bf992890edf3" >
-		<on-error-propagate enableNotifications="true" logException="true" doc:name="Not Found" doc:id="55b84b0f-1d56-412e-82e1-d67d063339b4" type="HTTP:NOT_FOUND">
-			<ee:transform doc:name="Transform Message" doc:id="b222331c-9d5c-410b-8aaa-9464e5514d71">
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="Resource Not Found" doc:id="ca752bc6-8632-49e2-8d3a-ad16488aab03" type="HTTP:NOT_FOUND">
+			<ee:transform doc:name="Transform Message" doc:id="3f1c5b40-54a8-4675-bd34-7d426db0eb4e" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"Status":"failed",
+	"Response":error.errorMessage.payload
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<set-variable value="404" doc:name="Set Status Code" doc:id="892fbe98-813c-423d-86cb-34a0d8f3b994" variableName="statusCode"/>
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Request Timeout" doc:id="e9f2d540-3182-4e2a-9fbc-e67aa7f0ca2c" type="HTTP:TIMEOUT">
+			<ee:transform doc:name="Transform Message" doc:id="ba0f8bd4-0762-4b0f-8fdc-bade372ff872">
 				<ee:message>
 					<ee:set-payload><![CDATA[%dw 2.0
 output application/json
 ---
 {
-	"status" : "Failed",
-	"response" : error.errorMessage.payload
+	"Status":"Failed",
+	"Response":"Request Time Out"
 }]]></ee:set-payload>
 				</ee:message>
 			</ee:transform>
+			<set-variable value="408" doc:name="Set Status Code" doc:id="4c5c016b-44fe-4dcc-bb11-10c9a0a0b423" variableName="statusCode"/>
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="e5d8c983-4769-49db-bc7f-39c58cf92e26" type="WEATHER:URL_NOT_FOUND">
+			<ee:transform doc:name="Transform Message" doc:id="baec5b36-2321-4535-b041-395fdcfa1720">
+				<ee:message>
+					<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"Status":"Failed",
+	"Response":"Internal Server Error"
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<set-variable value="404" doc:name="Set Status Code" doc:id="0f31bffb-838c-4d4d-930d-3a3b532d5ec5" variableName="statusCode" />
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="f0674d27-7a31-4954-86e9-8e7243883daa" type="ANY">
+			<ee:transform doc:name="Transform Message" doc:id="f09bf23d-d8db-4feb-a86b-0d9131c79440" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"Status":"Failed",
+	"Response":"Wrong URL Found"
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<set-variable value="500" doc:name="Set Status Code" doc:id="4dbfe993-2449-476c-a4e5-63f82161a09c" variableName="statusCode" />
 		</on-error-propagate>
 	</error-handler>
 
