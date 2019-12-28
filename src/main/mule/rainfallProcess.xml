@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd 
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+	<flow name="getRainfallByCity" doc:id="8d264e87-736b-42e4-93a3-fcf1c1fb7a3e" >
+		<http:request method="GET" doc:name="Request" doc:id="8179b764-4ab1-4dd0-b3c3-b91ea7ab5269" config-ref="RainfallRequestConfiguration" path="/rainfall">
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"city" : attributes.queryParams.city
+}]]]></http:query-params>
+		</http:request>
+		<logger level="INFO" doc:name="Logger" doc:id="db4b2fb3-4335-4c20-a891-311f1b94124f" message="#[payload]"/>
+		<ee:transform doc:name="Transform Message" doc:id="bada0353-5a3a-4f6e-83c0-be31d098bc93" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"Status":"Success",
+	"Result":payload
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="getMonthlyRainfallAvgByCity" doc:id="f6775b06-3124-499d-b189-4983afee3692">
+		<http:request method="GET" doc:name="Request" doc:id="fb24f4c1-1625-4a9b-94ef-80e94b17dda2" path="/getMonthlyAvgByCity" config-ref="RainfallRequestConfiguration">
+			<http:query-params><![CDATA[#[output application/java
+---
+{
+	"month" : vars.Month,
+	"city" : attributes.queryParams.city,
+	"units" : attributes.queryParams.units
+}]]]></http:query-params>
+		</http:request>
+		<logger level="INFO" doc:name="Logger" doc:id="d88c6888-44ab-4306-b810-15521fddcc04" />
+		<ee:transform doc:name="Transform Message" doc:id="e0ff0e64-3e2c-43c8-86dd-369d6aa2f72a">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"status":"Success",
+	"Result":payload
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="getYearlyRainfallAvgByCity" doc:id="cc93eb77-2749-438a-b48e-029051d1ea4d">
+		<http:request method="GET" doc:name="Request" doc:id="17a7a8c3-ba8a-4620-ae73-05a189cc36df" config-ref="RainfallRequestConfiguration" path="/getYearlyAvgByCity">
+			<http:query-params><![CDATA[#[output application/java
+---
+{
+	"city" : attributes.queryParams.city,
+	"units" : attributes.queryParams.units
+}]]]></http:query-params>
+		</http:request>
+		<logger level="INFO" doc:name="Logger" doc:id="d81225d0-d09f-4bc0-8bdf-d747558a4603" />
+		<ee:transform doc:name="Transform Message" doc:id="a2933fc4-0a6f-4702-aa15-d16122b8c5fa">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"status":"Success",
+	"Result":payload
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

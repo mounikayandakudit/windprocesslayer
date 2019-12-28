@@ -6,36 +6,13 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
-	<flow name="processControllerFlow" doc:id="bbbb7e8d-9d00-4793-aace-af65e41cf46f" >
-		<http:listener doc:name="HTTP /GET" doc:id="8abf462e-f15a-4391-816f-9d91a1fc7a3c" config-ref="HTTP_Listener_config" path="/wind" allowedMethods="GET">
-			<http:error-response >
-				<http:body ><![CDATA[#[payload]]]></http:body>
-			</http:error-response>
-		</http:listener>
-		<choice doc:name="Choice" doc:id="f1be4eec-4d00-4e47-a6f6-f5333a43307f" >
-			<when expression="#[attributes.queryParams.cityName != null and attributes.queryParams.unit != null]">
-				<flow-ref doc:name="GetWindByCityNameAndUnit" doc:id="990bd04f-0570-4199-a0e0-c1dc5ddbdb73" name="GetWindByCityNameAndUnit"/>
-			</when>
-			<when expression="#[attributes.queryParams.date != null and attributes.queryParams.cityName != null]">
-				<flow-ref doc:name="GetWindByCityNameAndDate" doc:id="6fa66df7-cdcb-4845-bedc-6406a9cfdfb7" name="GetWindByCityNameAndDate"/>
-			</when>
-			<when expression="#[attributes.queryParams.cityName != null and attributes.queryParams.unit == null]">
-				<flow-ref doc:name="GetWindByCityName" doc:id="8fcffc16-9ea2-4905-85ee-f7bef0bf3a02" name="GetWindByCityName"/>
-			</when>
-			<otherwise>
-				<raise-error doc:name="Raise error" doc:id="34ae298d-b054-4edd-8007-8bc2889b9b70" type="WEATHER:URL_NOT_FOUND" description="My description"/>
-			</otherwise>
-		</choice>
-		<logger level="INFO" doc:name="Logger" doc:id="b66553a7-7fdd-486b-adda-d9b04c6e956d" />
-	</flow>
-	
 	
 	<flow name="GetWindByCityNameAndUnit" doc:id="a446a5af-6da3-409a-8c5a-4846d94e5527" >
-		<http:request method="GET" doc:name="GET_Wind_Data /GET" doc:id="36a4065f-e135-4ec8-b4fc-23183badfe1c" config-ref="HTTP_Request_configuration" path="/city/{cityName}/showRecord">
+		<http:request method="GET" doc:name="GET_Wind_Data /GET" doc:id="36a4065f-e135-4ec8-b4fc-23183badfe1c" config-ref="WindRequest_configuration" path="/city/{cityName}/showRecord">
 			<http:uri-params ><![CDATA[#[output application/java
 ---
 {
-	"cityName" : attributes.queryParams.cityName
+	"cityName" : attributes.queryParams.city
 }]]]></http:uri-params>
 			<http:query-params ><![CDATA[#[output application/java
 ---
@@ -58,12 +35,12 @@ output application/json
 		
 	</flow>
 	<flow name="GetWindByCityNameAndDate" doc:id="d9bc34ba-aea1-4de4-bbb1-2ade7eb8af04" >
-		<http:request method="GET" doc:name="GET_WindData /GET" doc:id="017cfc9c-ceac-471c-a2bd-9fb5c3574feb" config-ref="HTTP_Request_configuration" path="/city/{cityName}/{date}">
+		<http:request method="GET" doc:name="GET_WindData /GET" doc:id="017cfc9c-ceac-471c-a2bd-9fb5c3574feb" config-ref="WindRequest_configuration" path="/city/{cityName}/{date}">
 			<http:uri-params ><![CDATA[#[output application/java
 ---
 {
 	"date" : attributes.queryParams.date,
-	"cityName" : attributes.queryParams.cityName
+	"cityName" : attributes.queryParams.city
 }]]]></http:uri-params>
 		</http:request>
 		<ee:transform doc:name="Transform Message" doc:id="d2dd98ad-b314-4c2a-9fae-5a2de77c7246" >
@@ -77,14 +54,13 @@ output application/json
 }]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
-		<logger level="INFO" doc:name="Logger" doc:id="83d64395-71d5-4792-9653-5815fedc5a8a" />
 	</flow>
 	<flow name="GetWindByCityName" doc:id="d04c3514-0e9d-4842-9056-b67d889429e4" >
-		<http:request method="GET" doc:name="GET_Wind_Data /GET" doc:id="8129fb87-70a4-47d6-baaa-b9f5b1385177" config-ref="HTTP_Request_configuration" path="/city/{cityName}/showRecord" >
+		<http:request method="GET" doc:name="GET_Wind_Data /GET" doc:id="8129fb87-70a4-47d6-baaa-b9f5b1385177" config-ref="WindRequest_configuration" path="/city/{cityName}/showRecord" >
 			<http:uri-params ><![CDATA[#[output application/java
 ---
 {
-	"cityName" : attributes.queryParams.cityName
+	"cityName" : attributes.queryParams.city
 }]]]></http:uri-params>
 		</http:request>
 		<ee:transform doc:name="Transform Message" doc:id="637ad6d5-2a18-44fd-88ff-e1a7c0805ea3" >

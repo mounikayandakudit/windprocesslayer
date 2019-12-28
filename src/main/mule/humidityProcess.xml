@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd 
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+	
+	<flow name="getHumdityByCity" doc:id="dd669a68-0c8f-410b-8b24-1fcc5ca15926">
+		<logger level="INFO" doc:name="Logger" doc:id="2146d9c7-1680-402b-a02a-1072f15d20e1" message="#[vars.city]" />
+		<http:request method="GET" doc:name="Request" doc:id="e17ee56e-1ba7-48a3-afdc-9936c23ac1b5" config-ref="HumidityRequestConfiguration" path="/weather/humidity">
+			<http:query-params><![CDATA[#[output application/java
+---
+{
+	"city" : attributes.queryParams.city
+}]]]></http:query-params>
+		</http:request>
+		<ee:transform doc:name="Transform Message" doc:id="2ea8b021-b4e5-4b7f-b082-be9039d9f745">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"Status":"success",
+	"Response": payload
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<set-payload value="#[payload]" doc:name="Set Payload" doc:id="8281a23a-51a4-48f2-b020-1fae79b8eb87" />
+		
+		
+	</flow>
+	<flow name="getHumidityByCityAndDate" doc:id="00fa87f2-4868-47b8-af1c-e8924e7d0111" >
+		<http:request method="GET" doc:name="Request" doc:id="00257159-c8c9-4630-916a-14ef77450f91" config-ref="HumidityRequestConfiguration" path="/weather/humidity/{city}">
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"city" : attributes.queryParams.city
+}]]]></http:uri-params>
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"date" : attributes.queryParams.date
+}]]]></http:query-params>
+		</http:request>
+		<ee:transform doc:name="Transform Message" doc:id="a7b5cc0d-0dd9-48e0-96c4-f193ad33a1e4" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"Status":"Success",
+	"Response":payload
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	
+	
+	
+</mule>
